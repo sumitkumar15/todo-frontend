@@ -16,7 +16,6 @@
 
 (defn get-user-tasks
   [username]
-  (println (str "http://localhost:3000/tasks/" username))
   (go (let [response (<! (http/get (str "http://localhost:3000/tasks/" username)
                                    {:with-credentials? false}))]
         (if (= 200 (:status response))
@@ -26,10 +25,36 @@
               nil))
           nil))))
 
-(defn make-post-req
-  [params]
-  (go (let [response (<! (http/post "http://localhost:3000/tasks"
-                                   {:with-credentials? false}))]
-        (prn (:status response))
-        (prn (:body response))))
-  )
+;{
+; "action":"newTask"
+;         "status": success/failed
+; "data":{
+;         all task params
+;             "title" : "my new task"
+;             "desc" : "useless as ever"
+;         }
+; }
+(defn add-task-req
+  [user params]
+  (go (let [req-map {:action "newTask"
+                     :data {
+                            :title (:title params)
+                            :desc (:desc params)
+                            }
+                     }
+            response (<! (http/post (str "http://localhost:3000/tasks/" user)
+                                   {:with-credentials? false
+                                    :json-params req-map}))]
+        response)))
+;{
+; "action":"deleteTask"
+; "taskid":"98721jkfnl"
+; }
+(defn delete-req
+  [user params]
+  (go (let [req-map {:action "deleteTask"
+                     :taskid (:id params)}
+            response (<! (http/post (str "http://localhost:3000/tasks/" user)
+                                    {:with-credentials? false
+                                     :json-params req-map}))]
+        response)))
