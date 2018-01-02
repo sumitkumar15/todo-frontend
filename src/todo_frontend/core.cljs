@@ -14,29 +14,73 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(defonce app-state (atom "<h1>Initial State</h1>"))
+(defonce tasks-state (atom "<h1>Initial State</h1>"))
 
 (defn set-html! [el content]
   (set! (.-innerHTML el) content))
 
 (defn main
   []
-  (let [content @app-state
+  (let [content @tasks-state
         element (dom/getElement "tasks")]
     (set-html! element content)))
 (main)
 
-(add-watch app-state :appstate
+(defn set-add-listener
+  [name]
+  (let [addbutton (dom/getElement "addtask")]
+    (events/listen addbutton "click"
+                   (fn [event]
+                     (let [title (.-value (aget (dom/getElementsByTagName "input") 0))
+                           desc (.-value (aget (dom/getElementsByTagName "input") 1))]
+                       (go
+                         (let [res (<! (apis/add-task-req
+                                         name
+                                         {:title title :desc desc}))]
+                           ;append to tasks on receiveing
+                           (if (= 200 (:status res))
+                             (hand/dispatcher (:body res))
+                             )))
+                       )))))
+
+(defn set-delete-listeners
+  [name]
+  (let [delbtns (array-seq (dom/getElementsByClass "delete-btn"))]
+    (doseq [btn delbtns]
+      (events/listen btn "click"
+                     (fn [event]
+                       (let [target (.-target event)
+                             value (str (.-value target))]
+                         (go
+                           (let [res (<! (apis/delete-req
+                                           name
+                                           {:id value}))]
+                             (if (= 200 (:status res))
+                               (let [body (:body res)]
+                                 (if (= "success" (:status body))
+                                   (dom/removeNode (dom/getElement value))
+                                   (js/alert "Some Error Occured"))))))))))
+    ))
+
+(add-watch tasks-state :taskstate
            (fn [_key _atom oldstate newstate]
              (let [content @newstate
                    element (dom/getElement "tasks")]
                (set-html! element content))))
 
+;; Routes definition start
 (defroute "/:name" [name]
-          (println name)
+          (set-add-listener name)
           (go
             (let [res (<! (hand/load-tasks name))]
-              (reset! app-state (atom res)))))
+              (reset! tasks-state (atom res))
+              (set-delete-listeners name))))
+
+;; Routes definition ended
+
+;(go
+;  (let [res (<! (hand/load-tasks name))]
+;    (reset! tasks-state (atom res))))
 
 ;(defroute "/ot" []
 ;          (println "inside route2 /ot")
