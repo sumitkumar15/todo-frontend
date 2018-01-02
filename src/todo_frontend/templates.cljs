@@ -17,9 +17,10 @@
 (defn tpl-task
   [^:Map task-map]
   (html
-    [:div {:id (:_id task-map) :class "task-layer"}
-     [:input {:type "checkbox" :class "chk-box"}
-      [:h2 (:title task-map)]
-      [:p (:desc task-map)]
-      [:button {:type "button" :value (:_id task-map) } "Delete"]]
-     ]))
+    [:tr {:id (:_id task-map)}
+     [:td [:input {:type "checkbox" :class "chk-box"}]]
+     [:td [:h2 (:title task-map)]]
+     [:td [:p (:desc task-map)]]
+     [:td [:button {:type "button" :value (:_id task-map) :class "delete-btn"} "Delete"]]]
+    ;[:div {:id (:_id task-map) :class "task-layer"}]
+    ))
