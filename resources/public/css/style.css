@@ -2,15 +2,42 @@
 .tasklayer{
 
 }
-.chk-box {
-  display: block;
-  position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  font-size: 22px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+.app-header{
+    text-align: center;
+}
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+button.title-btn{
+     background:none;
+     border:none;
+}
+button.title-btn:hover{
+    color:#FF0000;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+tr.row-elem:hover{
+    background: #5b86cc;
+}
+.left-container{
+    float: left;
+    width: 25%;
+    padding: 5px;
+}
+.middle-container{
+    width: 50%;
+    padding: 10px;
+    float: left;
+}
+.right-container{
+    width: 20%;
+    padding: 10px;
+    float: left;
 }
