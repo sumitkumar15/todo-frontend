@@ -5,15 +5,33 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 </head>
 <body>
-    <div id="newtask" class="add-task">
-        Title:<input type="text" name="title" required="required">
-        <br>
-        Desc:<input type="text" name="desc">
-        <br><br>
-        <button type="button" name="addtask">Add</button>
+<div class="container">
+    <div class="left-container">
+        <div id="newtask" class="add-task">
+            Title:<input type="text" name="title" required="required">
+            <br>
+            Desc:<input type="text" name="desc">
+            <br><br>
+            <button id="addtask">Add</button>
+            <br>
+        </div>
     </div>
-    <div class="appheader">Lazy List</div>
-    <div id="tasks" class="tasksection"></div>
+    <div class="middle-container">
+        <div class="app-header"><h1>Lazy List</h1></div>
+        <div id="tasks" class="tasksection"></div>
+    </div>
+    <div class="right-container">
+        <div class="modify-tasks">
+            Title:<input type="text" class="modify-controls" name="mod-title" required="required">
+            <br>
+            Desc:<input type="text" class="modify-controls" name="mod-desc">
+            <br><br>
+            <button id="modifytask">Update</button>
+            <br>
+        </div>
+    </div>
+</div>
+
   <script src="js/compiled/todo_frontend.js" type="text/javascript"></script>
 </body>
 </html>
