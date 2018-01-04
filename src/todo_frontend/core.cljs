@@ -70,8 +70,7 @@
   (events/listen element "click"
                  (fn [event]
                    (println "Inside event" event)
-                   (let [target (.-target event)
-                         allnodes (map #(-> % .-firstChild)
+                   (let [allnodes (map #(-> % .-firstChild)
                                        (array-seq (dom/getChildren element)))
                          title (.-innerHTML (nth allnodes 1))
                          desc (.-innerHTML (nth allnodes 2))
@@ -109,6 +108,49 @@
     (doseq [btn updatebtns]
       (listen-modify btn name))))
 
+(defn listen-completed
+  [element name]
+  (events/listen element "change"
+                 (fn [event]
+                   (println "inside chkbox event")
+                   (let [target (.-target event)
+                         state (.-value target)]
+                     (if (= state "on")
+                       (set! (.-value element) "off")
+                       (set! (.-value element) "on"))
+                     (let [taskid (-> (dom/getParentElement element)
+                                      dom/getParentElement
+                                      (.getAttribute "id"))
+                           ]
+                       (println "state" (.-value element))
+                       (if (= "on" (.-value element))
+                         (do
+                           (go
+                             (let [req-map {:id taskid :status "C"}
+                                   res (<! (apis/update-status
+                                             name
+                                             req-map))]
+                               ;append to tasks on receiveing
+                               (if (= 200 (:status res))
+                                 (hand/dispatcher (:body res) req-map)))))
+                         (do
+                           (go
+                             (let [req-map {:id taskid :status "I"}
+                                   res (<! (apis/update-status
+                                             name
+                                             req-map))]
+                               ;append to tasks on receiveing
+                               (if (= 200 (:status res))
+                                 (hand/dispatcher (:body res) req-map)))))
+                         ))
+                   (.stopPropagation event)))))
+
+(defn set-comp-listeners
+  [name]
+  (let [comp_btns (array-seq (dom/getElementsByClass "chk-box"))]
+    (doseq [tick_btn comp_btns]
+      (listen-completed tick_btn name))))
+
 (add-watch tasks-state :taskstate
            (fn [_key _atom oldstate newstate]
              (let [content @newstate
@@ -127,25 +169,11 @@
             (let [res (<! (hand/load-tasks name))]
               (reset! tasks-state (atom res))
               (set-delete-listeners name)
-              (set-modify-listener name)
-              (set-update-listener name))))
+              (set-modify-listener name)                    ;listener on row elem
+              (set-update-listener name)                    ;listener on update btn
+              (set-comp-listeners name))))
 
 ;; Routes definition ended
-
-;(go
-;  (let [res (<! (hand/load-tasks name))]
-;    (reset! tasks-state (atom res))))
-
-;(defroute "/ot" []
-;          (println "inside route2 /ot")
-;          (go
-;            (let [res (<! ())]
-;              (reset! app-state (atom res))
-;              @app-state)))
-
-;(defroute "*" []
-;          (reset! app-state (atom (tpl/tpl-notfound))))
-
 (let [h (History.)]
   (events/listen h EventType/NAVIGATE #(secretary/dispatch! (.-token %)))
   (doto h (.setEnabled true)))
