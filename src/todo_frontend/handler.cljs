@@ -41,5 +41,20 @@
     (append-to-tasktable (:data resp))
     nil))
 
+(defn update-task-info
+  [^:Map task-map]
+  (let [elem (dom/getElement (:id task-map))
+        allnodes (map #(-> % .-firstChild)
+                      (array-seq (dom/getChildren elem)))]
+    (set-html! (nth allnodes 1) (:title task-map))
+    (set-html! (nth allnodes 2) (:desc task-map))))
+
+(defmethod dispatcher "updateTask"
+  [^:Map resp ^:Map params]
+  (println resp)
+  (if (= (:status resp) "success")
+    (update-task-info params)
+    (js/alert "Something went wrong")))
+
 (defmethod dispatcher :default
   [])
