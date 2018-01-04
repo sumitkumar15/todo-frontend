@@ -46,8 +46,10 @@
   (let [elem (dom/getElement (:id task-map))
         allnodes (map #(-> % .-firstChild)
                       (array-seq (dom/getChildren elem)))]
-    (set-html! (nth allnodes 1) (:title task-map))
-    (set-html! (nth allnodes 2) (:desc task-map))))
+    (when (:title task-map)
+      (set-html! (nth allnodes 1) (:title task-map)))
+    (when (:desc task-map)
+      (set-html! (nth allnodes 2) (:desc task-map)))))
 
 (defmethod dispatcher "updateTask"
   [^:Map resp ^:Map params]
