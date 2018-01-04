@@ -58,3 +58,23 @@
                                     {:with-credentials? false
                                      :json-params req-map}))]
         response)))
+;update task json
+;{
+; "action":"updateTask"
+; "taskid": id
+; "data":{
+;         "title" : "my new task"
+;         "desc" : "useless as ever"
+;         }
+; }
+(defn update-req
+  [user params]
+  (go
+    (let [req-map {:action "updateTask"
+                   :taskid (:id params)
+                   :data {:title (:title params)
+                          :desc (:desc params)}}
+          response (<! (http/post (str "http://localhost:3000/tasks/" user)
+                                  {:with-credentials? false
+                                   :json-params req-map}))]
+      response)))
