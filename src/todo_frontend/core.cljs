@@ -24,7 +24,6 @@
   (let [content @tasks-state
         element (dom/getElement "tasks")]
     (set-html! element content)))
-(main)
 
 (defn set-add-listener
   [name]
@@ -42,25 +41,73 @@
                              (hand/dispatcher (:body res))
                              )))
                        )))))
+(defn listen-delete
+  [element name]
+  (events/listen element "click"
+                 (fn [event]
+                   (let [target (.-target event)
+                         value (str (.-value target))]
+                     (go
+                       (let [res (<! (apis/delete-req
+                                       name
+                                       {:id value}))]
+                         (if (= 200 (:status res))
+                           (let [body (:body res)]
+                             (if (= "success" (:status body))
+                               (dom/removeNode (dom/getElement value))
+                               (js/alert "Some Error Occured"))))))
+                     (.stopPropagation event)
+                     false))))
 
 (defn set-delete-listeners
   [name]
   (let [delbtns (array-seq (dom/getElementsByClass "delete-btn"))]
     (doseq [btn delbtns]
-      (events/listen btn "click"
-                     (fn [event]
-                       (let [target (.-target event)
-                             value (str (.-value target))]
-                         (go
-                           (let [res (<! (apis/delete-req
-                                           name
-                                           {:id value}))]
-                             (if (= 200 (:status res))
-                               (let [body (:body res)]
-                                 (if (= "success" (:status body))
-                                   (dom/removeNode (dom/getElement value))
-                                   (js/alert "Some Error Occured"))))))))))
-    ))
+      (listen-delete btn name))))
+
+(defn listen-modify
+  [element name]
+  (events/listen element "click"
+                 (fn [event]
+                   (println "Inside event" event)
+                   (let [target (.-target event)
+                         allnodes (map #(-> % .-firstChild)
+                                       (array-seq (dom/getChildren element)))
+                         title (.-innerHTML (nth allnodes 1))
+                         desc (.-innerHTML (nth allnodes 2))
+                         inp_ctrls (array-seq (dom/getElementsByClass "modify-controls"))
+                         up_btn (dom/getElement "modifytask")
+                         ]
+                     (set! (.-value (nth inp_ctrls 0)) title)
+                     (set! (.-value (nth inp_ctrls 1)) desc)
+                     (set! (.-value up_btn) (-> element (.getAttribute "id"))))
+                   (.stopPropagation event))))
+
+(defn set-update-listener
+  [name]
+  (let [upbutton (dom/getElement "modifytask")]
+    (events/listen upbutton "click"
+                   (fn [event]
+                     (let [inp_ctrls (array-seq (dom/getElementsByClass "modify-controls"))
+                           title (.-value (nth inp_ctrls 0))
+                           desc (.-value (nth inp_ctrls 1))
+                           id (.-value upbutton)
+                           req-map {:id id :title title :desc desc}]
+                       (go
+                         (let [res (<! (apis/update-req
+                                         name
+                                         req-map))]
+                           ;append to tasks on receiveing
+                           (if (= 200 (:status res))
+                             (hand/dispatcher (:body res) req-map)
+                             )))
+                       )))))
+
+(defn set-modify-listener
+  [name]
+  (let [updatebtns (array-seq (dom/getElementsByClass "row-elem"))]
+    (doseq [btn updatebtns]
+      (listen-modify btn name))))
 
 (add-watch tasks-state :taskstate
            (fn [_key _atom oldstate newstate]
@@ -69,12 +116,19 @@
                (set-html! element content))))
 
 ;; Routes definition start
+(defroute "/" []
+          ;open register page
+          (println "on route /")
+          (main)
+          )
 (defroute "/:name" [name]
           (set-add-listener name)
           (go
             (let [res (<! (hand/load-tasks name))]
               (reset! tasks-state (atom res))
-              (set-delete-listeners name))))
+              (set-delete-listeners name)
+              (set-modify-listener name)
+              (set-update-listener name))))
 
 ;; Routes definition ended
 
