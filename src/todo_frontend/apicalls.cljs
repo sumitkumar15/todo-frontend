@@ -78,3 +78,14 @@
                                   {:with-credentials? false
                                    :json-params req-map}))]
       response)))
+
+(defn update-status
+  [user params]
+  (go
+    (let [req-map {:action "updateTask"
+                   :taskid (:id params)
+                   :data {:status (:status params)}}
+          response (<! (http/post (str "http://localhost:3000/tasks/" user)
+                                  {:with-credentials? false
+                                   :json-params req-map}))]
+      response)))
