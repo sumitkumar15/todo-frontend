@@ -19,7 +19,7 @@
       (if (= "success" (:status resp))
         (html
           [:table [:tbody {:id "tasktable"}
-                   (apply str (map (fn [x] (tpl/tpl-task x)) resp))]])
+                   (apply str (map (fn [x] (tpl/tpl-task x)) (:data resp)))]])
         (html [:h3 "You need to register first"]))
       )))
 
