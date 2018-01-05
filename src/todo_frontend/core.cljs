@@ -32,15 +32,15 @@
                    (fn [event]
                      (let [title (.-value (aget (dom/getElementsByTagName "input") 0))
                            desc (.-value (aget (dom/getElementsByTagName "input") 1))]
-                       (go
-                         (let [res (<! (apis/add-task-req
-                                         name
-                                         {:title title :desc desc}))]
-                           ;append to tasks on receiveing
-                           (if (= 200 (:status res))
-                             (hand/dispatcher (:body res))
-                             )))
-                       )))))
+                       (when (not= title "")
+                         (go
+                           (let [res (<! (apis/add-task-req
+                                           name
+                                           {:title title :desc desc}))]
+                             ;append to tasks on receiveing
+                             (if (= 200 (:status res))
+                               (hand/dispatcher (:body res)))))
+                         ))))))
 (defn listen-delete
   [element name]
   (events/listen element "click"
@@ -69,11 +69,10 @@
   [element name]
   (events/listen element "click"
                  (fn [event]
-                   (println "Inside event" event)
                    (let [allnodes (map #(-> % .-firstChild)
                                        (array-seq (dom/getChildren element)))
-                         title (.-innerHTML (nth allnodes 1))
-                         desc (.-innerHTML (nth allnodes 2))
+                         title (.-innerText (nth allnodes 1))
+                         desc (.-innerText (nth allnodes 2))
                          inp_ctrls (array-seq (dom/getElementsByClass "modify-controls"))
                          up_btn (dom/getElement "modifytask")
                          ]
@@ -98,9 +97,7 @@
                                          req-map))]
                            ;append to tasks on receiveing
                            (if (= 200 (:status res))
-                             (hand/dispatcher (:body res) req-map)
-                             )))
-                       )))))
+                             (hand/dispatcher (:body res) req-map)))))))))
 
 (defn set-modify-listener
   [name]
@@ -112,7 +109,6 @@
   [element name]
   (events/listen element "change"
                  (fn [event]
-                   (println "inside chkbox event")
                    (let [target (.-target event)
                          state (.-value target)]
                      (if (= state "on")
@@ -122,7 +118,6 @@
                                       dom/getParentElement
                                       (.getAttribute "id"))
                            ]
-                       (println "state" (.-value element))
                        (if (= "on" (.-value element))
                          (do
                            (go
@@ -130,7 +125,6 @@
                                    res (<! (apis/update-status
                                              name
                                              req-map))]
-                               ;append to tasks on receiveing
                                (if (= 200 (:status res))
                                  (hand/dispatcher (:body res) req-map)))))
                          (do
@@ -139,7 +133,6 @@
                                    res (<! (apis/update-status
                                              name
                                              req-map))]
-                               ;append to tasks on receiveing
                                (if (= 200 (:status res))
                                  (hand/dispatcher (:body res) req-map)))))
                          ))
@@ -161,7 +154,7 @@
 (defroute "/" []
           ;open register page
           (println "on route /")
-          (main)
+          ;(main)
           )
 (defroute "/:name" [name]
           (set-add-listener name)
