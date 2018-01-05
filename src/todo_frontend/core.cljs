@@ -91,13 +91,14 @@
                            desc (.-value (nth inp_ctrls 1))
                            id (.-value upbutton)
                            req-map {:id id :title title :desc desc}]
-                       (go
-                         (let [res (<! (apis/update-req
-                                         name
-                                         req-map))]
-                           ;append to tasks on receiveing
-                           (if (= 200 (:status res))
-                             (hand/dispatcher (:body res) req-map)))))))))
+                       (when (not= title "")
+                         (go
+                           (let [res (<! (apis/update-req
+                                           name
+                                           req-map))]
+                             ;append to tasks on receiveing
+                             (if (= 200 (:status res))
+                               (hand/dispatcher (:body res) req-map))))))))))
 
 (defn set-modify-listener
   [name]
