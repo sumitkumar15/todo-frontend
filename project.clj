@@ -13,7 +13,6 @@
                  [org.clojure/core.async  "0.3.443"]
                  [cljs-http "0.1.44"]
                  [secretary "1.2.3"]
-                 [crate "0.2.5"]
                  [hiccups "0.3.0"]]
 
   :plugins [[lein-figwheel "0.5.14"]
