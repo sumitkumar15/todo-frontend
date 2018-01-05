@@ -20,9 +20,7 @@
                                    {:with-credentials? false}))]
         (if (= 200 (:status response))
           (let [body (:body response)]
-            (if (= "success" (:status body))
-              (:data body)
-              nil))
+            body)
           nil))))
 
 ;{

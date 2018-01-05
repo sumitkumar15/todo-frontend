@@ -16,8 +16,12 @@
   [username]
   (go
     (let [resp (<! (apis/get-user-tasks username))]
-      (html
-        [:table [:tbody {:id "tasktable"} (apply str (map (fn [x] (tpl/tpl-task x)) resp))]]))))
+      (if (= "success" (:status resp))
+        (html
+          [:table [:tbody {:id "tasktable"}
+                   (apply str (map (fn [x] (tpl/tpl-task x)) resp))]])
+        (html [:h3 "You need to register first"]))
+      )))
 
 (defn append-to-tasktable
   [^:Map task-map]
@@ -53,7 +57,6 @@
 
 (defmethod dispatcher "updateTask"
   [^:Map resp ^:Map params]
-  (println resp)
   (if (= (:status resp) "success")
     (update-task-info params)
     (js/alert "Something went wrong")))
