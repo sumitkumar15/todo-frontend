@@ -7,7 +7,8 @@
             [cljs.core.async :refer [<!]]
             [goog.events :as events]
             [goog.dom :as dom]
-            [goog.history.EventType :as EventType]))
+            [goog.history.EventType :as EventType]
+            [todo-frontend.eventmanager :as evm]))
 
 (defn set-html! [el content]
   (set! (.-innerHTML el) content))
@@ -24,25 +25,30 @@
       )))
 
 (defn append-to-tasktable
-  [^:Map task-map]
+  [^:Map task-map user]
   (let [parent (dom/getElement "tasktable")
         childstr (tpl/tpl-task task-map)
         c-elem (let [d (dom/createElement "tr")]
                  (-> d (.setAttribute "id" (:_id task-map)))
                  (set-html! d childstr)
                  d)
+        children (map #(-> % .-firstChild)
+                      (array-seq (dom/getChildren c-elem)))
         ]
+    (evm/listen-modify c-elem user)
+    (evm/listen-completed (nth children 0) user)
+    (evm/listen-delete (nth children 3) user)
     (dom/appendChild  parent c-elem)))
 
 (defmulti dispatcher
           "Polymorphic function that handles the response based
           on :action of response"
-          (fn [param tasks-state] (:action param :default)))
+          (fn [param user] (:action param :default)))
 
 (defmethod dispatcher "newTask"
-  [^:Map resp ^:atom tasks-state]
+  [^:Map resp user]
   (if (= (:status resp) "success")
-    (append-to-tasktable (:data resp))
+    (append-to-tasktable (:data resp) user)
     nil))
 
 (defn update-task-info
