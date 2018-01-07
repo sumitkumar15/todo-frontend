@@ -28,7 +28,7 @@ tr.row-elem:hover{
 }
 .left-container{
     float: left;
-    width: 25%;
+    width: 20%;
     padding: 5px;
 }
 .middle-container{
@@ -40,4 +40,10 @@ tr.row-elem:hover{
     width: 20%;
     padding: 10px;
     float: left;
+}
+body{
+    font: 14px/100% Verdana;
+}
+.break-word {
+  overflow-wrap: normal;
 }
