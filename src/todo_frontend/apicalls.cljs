@@ -87,3 +87,15 @@
                                   {:with-credentials? false
                                    :json-params req-map}))]
       response)))
+
+
+;(defn create-new-user
+;  [params]
+;  (go
+;    (let [req-map {:action "createUser"
+;                   :data {:name (:name params)
+;                          :uid (:uid params)}}
+;          response (<! (http/post (str "http://localhost:3000/user")
+;                                  {:with-credentials? false
+;                                   :json-params req-map}))]
+;      response)))
