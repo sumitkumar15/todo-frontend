@@ -21,7 +21,7 @@
 (defn tpl-task
   [^:Map task-map]
   (html
-    [:tr {:id (:_id task-map) :class "row-elem"}
+    [:tr {:id (:_id task-map) :class "row-elem break-word"}
      [:td [:input {:type "checkbox"
                    :class "chk-box"
                    :value (if (check? (:status task-map)) "on" "off")
