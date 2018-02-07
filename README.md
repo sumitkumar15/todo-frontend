@@ -1,39 +1,32 @@
 # todo-frontend
 
-FIXME: Write a one-line description of your library/project.
+This project is the frontend part of my todo application.
+
+You can see the backend [here](https://github.com/sumitkumar15/todo-web).
 
 ## Overview
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+The frontend is written in Clojurescript.
+
+The project is built using following libraries.
+
+1. cljs-http - http request & response handling
+
+2. secretary - Routing library
+
+3. hiccups   - Html templating library
+
+4. core.async- Handling async request & response
 
 ## Setup
 
-To get an interactive development environment run:
+First run the backend part of the appliction.
 
+Run 
     lein figwheel
-
-and open your browser at [localhost:3449](http://localhost:3449/).
-This will auto compile and send all changes to the browser without the
-need to reload. After the compilation process is complete, you will
-get a Browser Connected REPL. An easy way to try it is:
-
-    (js/alert "Am I connected?")
-
-and you should see an alert in the browser window.
-
-To clean all compiled files:
-
-    lein clean
-
-To create a production build run:
-
-    lein do clean, cljsbuild once min
-
-And open your browser in `resources/public/index.html`. You will not
-get live reloading, nor a REPL. 
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2014 
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
